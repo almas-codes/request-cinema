@@ -8,7 +8,7 @@ export default defineConfig({
       description:
         'Next-generation distributed OpenTelemetry trace visualizer that maps traces into an interactive metro transit cinema.',
       social: {
-        github: 'https://github.com/request-cinema/request-cinema',
+        github: 'https://github.com/almas-codes/request-cinema',
       },
       sidebar: [
         {

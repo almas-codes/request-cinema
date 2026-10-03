@@ -9,7 +9,7 @@ Thank you for contributing to Request Cinema! We appreciate bug reports, feature
 1. **Prerequisites**: Node.js >= 22.0.0 and pnpm >= 9.0.0.
 2. **Clone and Install**:
    ```bash
-   git clone https://github.com/almaskhan/request-cinema.git
+   git clone https://github.com/almas-codes/request-cinema.git
    cd request-cinema
    pnpm install
    ```

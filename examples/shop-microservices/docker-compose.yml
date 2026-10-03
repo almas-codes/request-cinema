@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   cinema:
-    image: ghcr.io/almaskhan/request-cinema:latest
+    image: ghcr.io/almas-codes/request-cinema:latest
     build:
       context: ../..
       dockerfile: Dockerfile

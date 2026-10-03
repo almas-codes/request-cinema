@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "files": [],
+  "references": [
+    { "path": "./packages/trace-model" },
+    { "path": "./packages/test-kit" },
+    { "path": "./packages/otlp" },
+    { "path": "./packages/cinema-engine" },
+    { "path": "./packages/cinema-renderer-pixi" },
+    { "path": "./packages/cinema-react" },
+    { "path": "./packages/source-resolver" },
+    { "path": "./packages/store" },
+    { "path": "./packages/sdk-node" },
+    { "path": "./apps/web" },
+    { "path": "./apps/server" }
+  ]
+}

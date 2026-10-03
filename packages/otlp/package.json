@@ -1,0 +1,31 @@
+{
+  "name": "@request-cinema/otlp",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc --build",
+    "typecheck": "tsc --build",
+    "test": "vitest run",
+    "clean": "tsc --build --clean"
+  },
+  "dependencies": {
+    "@request-cinema/trace-model": "workspace:*",
+    "protobufjs": "^7.4.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@request-cinema/config": "workspace:*",
+    "@request-cinema/test-kit": "workspace:*",
+    "fast-check": "^3.23.2",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5"
+  }
+}

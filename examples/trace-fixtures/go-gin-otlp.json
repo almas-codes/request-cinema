@@ -1,0 +1,29 @@
+{
+  "resourceSpans": [
+    {
+      "resource": {
+        "attributes": [{ "key": "service.name", "value": { "stringValue": "go-order-service" } }]
+      },
+      "scopeSpans": [
+        {
+          "spans": [
+            {
+              "traceId": "4bf92f3577b34da6a3ce929d0e0e4736",
+              "spanId": "32a76f2812cd98ef",
+              "parentSpanId": "00f067aa0ba902b7",
+              "name": "DB.QueryContext",
+              "kind": 3,
+              "startTimeUnixNano": "1700000000015000000",
+              "endTimeUnixNano": "1700000000045000000",
+              "attributes": [
+                { "key": "db.system", "value": { "stringValue": "postgres" } },
+                { "key": "db.statement", "value": { "stringValue": "SELECT * FROM orders" } }
+              ],
+              "status": { "code": 1 }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

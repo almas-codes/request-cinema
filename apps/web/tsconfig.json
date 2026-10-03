@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "extends": "../../packages/config/tsconfig.react.json",
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "noEmit": true
+  },
+  "references": [
+    { "path": "../../packages/trace-model" },
+    { "path": "../../packages/otlp" },
+    { "path": "../../packages/cinema-engine" },
+    { "path": "../../packages/cinema-renderer-pixi" },
+    { "path": "../../packages/cinema-react" },
+    { "path": "../../packages/store" }
+  ],
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts", "**/*.test.tsx"]
+}

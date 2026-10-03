@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  request-cinema:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: request-cinema
+    ports:
+      - '3000:3000' # Web UI & REST/SSE API
+      - '4318:4318' # OTLP/HTTP Ingestion Port
+    environment:
+      - PORT=3000
+      - OTLP_HTTP_PORT=4318
+      - STORAGE_TYPE=sqlite
+      - SQLITE_PATH=/data/cinema.db
+    volumes:
+      - cinema-data:/data
+    restart: unless-stopped
+
+volumes:
+  cinema-data:

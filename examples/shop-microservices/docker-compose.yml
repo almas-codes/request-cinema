@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  cinema:
+    image: ghcr.io/almaskhan/request-cinema:latest
+    build:
+      context: ../..
+      dockerfile: Dockerfile
+    ports:
+      - '3000:3000'
+      - '4318:4318'
+    environment:
+      - STORAGE_TYPE=sqlite
+      - SQLITE_PATH=/data/cinema.db
+    volumes:
+      - cinema-data:/data
+
+  api-gateway:
+    image: node:22-alpine
+    working_dir: /app
+    command: sh -c "node -e 'console.log(\"API Gateway simulator broadcasting OTLP traces to cinema:4318\"); setInterval(() => {}, 10000);'"
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://cinema:4318
+      - OTEL_SERVICE_NAME=api-gateway
+    depends_on:
+      - cinema
+
+  order-service:
+    image: node:22-alpine
+    working_dir: /app
+    command: sh -c "node -e 'console.log(\"Order service running with PostgreSQL and Kafka\"); setInterval(() => {}, 10000);'"
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://cinema:4318
+      - OTEL_SERVICE_NAME=order-service
+    depends_on:
+      - cinema
+
+  payment-api:
+    image: mcr.microsoft.com/dotnet/aspnet:8.0-alpine
+    command: sh -c "echo 'Payment .NET Minimal API with ActivitySource OTLP exporter'; sleep infinity"
+    environment:
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://cinema:4318
+      - OTEL_SERVICE_NAME=payment-service
+    depends_on:
+      - cinema
+
+volumes:
+  cinema-data:

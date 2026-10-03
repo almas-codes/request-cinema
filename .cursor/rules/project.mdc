@@ -1,0 +1,18 @@
+---
+description: Request Cinema project rules
+alwaysApply: true
+---
+- Read docs/MASTER_SPEC.md before starting any task; follow its phases in order.
+- cinema-engine is pure: no React, DOM, network, Date.now, Math.random. Use injected Clock and seeded RNG.
+- timeline(trace, layout, t) must stay a pure deterministic function.
+- Validate every boundary with Zod; derive types from schemas.
+- TanStack Query for server state, Zustand for UI-only state. Nothing else global.
+- Packages expose only index.ts. No deep cross-package imports (dependency-cruiser enforces).
+- No any, no non-null assertions, no default exports (except route files). Files < 250 lines.
+- Tests first for logic in trace-model, otlp, timeline, layout. Property test for every normalizer.
+- Never use real time or arbitrary sleeps in tests. ManualClock + seeded RNG only.
+- Redact attributes before persistence. Resolve source paths only inside configured roots.
+- Accessibility is a feature: keyboard, reduced motion, ARIA, table alternative.
+- Before coding: restate the task and list files to touch. After coding: run typecheck, lint, tests.
+- Never invent APIs; read the installed package types. Ask one specific question if unsure.
+- Conventional Commits. Add a Changeset for publishable package changes.

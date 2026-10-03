@@ -1,0 +1,30 @@
+{
+  "name": "@request-cinema/cinema-renderer-pixi",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc --build",
+    "typecheck": "tsc --build",
+    "test": "vitest run",
+    "clean": "tsc --build --clean"
+  },
+  "dependencies": {
+    "@request-cinema/cinema-engine": "workspace:*",
+    "@request-cinema/trace-model": "workspace:*",
+    "pixi.js": "^8.7.4"
+  },
+  "devDependencies": {
+    "@request-cinema/config": "workspace:*",
+    "@request-cinema/test-kit": "workspace:*",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5"
+  }
+}

@@ -14,7 +14,8 @@
     "check:boundaries": "depcruise --config .dependency-cruiser.cjs packages",
     "dev": "turbo run dev --parallel",
     "verify": "pnpm lint && pnpm check:boundaries && pnpm typecheck && pnpm test && pnpm build",
-    "changeset": "changeset"
+    "changeset": "changeset",
+    "release": "node scripts/release.cjs"
   },
   "devDependencies": {
     "@biomejs/biome": "^1.9.4",

@@ -9,195 +9,196 @@
 [![OpenTelemetry](https://img.shields.io/badge/OpenTelemetry-OTLP%20Native-orange.svg)](https://opentelemetry.io/)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-### *Stop staring at endless waterfall charts. Watch your requests travel through your architecture like express trains on a living metro map.*
+### *Turn complicated backend logs into an animated subway map you can play, pause, and rewind like a movie.*
 
-[Quick Start](#-quick-start-in-30-seconds) • [Why We Built This](#-why-we-built-this) • [Interactive Features](#-the-experience) • [How It Works](#-under-the-hood) • [Comparison](#-honest-comparison) • [Contributing](CONTRIBUTING.md)
+[Simple Explanation](#-what-is-request-cinema-in-simple-words) • [Quick Start](#-quick-start-in-30-seconds) • [How It Works](#-the-subway-map-explained) • [Features](#-key-features) • [Comparison](#-comparison-with-other-tools) • [Architecture](#-architecture--monorepo) • [Contributing](CONTRIBUTING.md)
 
 </div>
 
 ---
 
-## 💡 Why We Built This
+## 🧐 What is Request Cinema? (In Simple Words)
 
-Ever tried debugging a cascading timeout at 3:00 AM using a traditional waterfall Gantt chart?
+When someone clicks a button on an app or website (for example, clicking **"Pay Now"** on an online store), that single request travels across many different background computers:
+1. It hits the **API Gateway** (the front door).
+2. It talks to the **Authentication Service** (checking who you are).
+3. It asks the **Database** (checking your cart and inventory).
+4. It calls a **Payment Processor** (charging your card).
+5. It sends a message to an **Email Worker** (sending your receipt).
 
-You're scrolling through 3,000 horizontal bars across 40 microservices, squinting at nanosecond offsets, cross-referencing log timestamps, and trying to mentally reconstruct which service called what. It feels like trying to read *The Matrix* in raw green hex.
+### The Problem:
+When something goes wrong or takes 10 seconds to load, engineers normally have to stare at **thousands of lines of confusing text logs** or **ugly horizontal bar charts** (called waterfall traces). It is hard to read, hard to understand, and takes forever to figure out which server is broken.
 
-We asked a simple question: **What if your distributed architecture was rendered as a clean, interactive subway transit map, and every incoming request was an express train?**
+### The Solution:
+**Request Cinema turns your entire system into an animated Metro / Subway transit map:**
+- 🚉 **Stations** = Your servers, databases, and APIs (Node, Go, Python, PostgreSQL, Redis, Kafka).
+- 🛤️ **Railway Tracks** = The network connections between them.
+- 🚄 **Trains** = The user's request traveling from one server to another.
+- 🟢🟡🔴 **Speed & Colors** = Fast servers stay cool green/blue. If a database is slow, it turns bright glowing red!
+- 💥 **Train Crash / Derailment** = If a server throws an error (like a 500 error or crash), the train physically derails with sparks and smoke right at that station. You instantly know who broke it.
+- 🔍 **Click to See Code** = Click on any station or train to immediately see the exact file and lines of code that ran.
 
-- **Services, databases, and message queues** are the stations.
-- **RPCs, HTTP calls, and async pub/subs** are the railway tracks.
-- **Spans** are trains traveling along those tracks in real time-scaled duration.
-- **Slow operations** physically heat up—shifting from cool neon teal to glowing amber and blazing crimson based on real historical percentiles ($p50$, $p90$, $p99$).
-- **Unhandled 500 errors?** The train literally derails with visual sparks and smoke, pointing you right to the crime scene.
-- **Curious who wrote the code?** Click any station or train to instantly open the exact file, function, highlighted line number, and recent Git blame.
-
-No proprietary agents. No vendor lock-in. Just pure, open standard **OpenTelemetry (OTLP)**.
+You can **Play**, **Pause**, **Slow Down**, or **Scrub backward and forward** just like a video on YouTube or Netflix.
 
 ---
 
-## 🚇 The Mental Model
+## 🚇 The Subway Map Explained
+
+Here is what your system looks like inside Request Cinema:
 
 ```text
-                           [ CLIENT BROWSER ]
-                                   │
-                                   │ (HTTP POST /checkout)
-                                   ▼
-                         ┌───────────────────┐
-                         │   API Gateway     │
-                         └─────────┬─────────┘
-                                   │
-                    ┌──────────────┴──────────────┐
-                    │ (gRPC)                      │ (gRPC)
-                    ▼                             ▼
-         ┌───────────────────┐         ┌─────────────────────┐
-         │   Order Service   │         │    Auth Service     │
-         └─────────┬─────────┘         └──────────┬──────────┘
-                   │                              │
-     ┌─────────────┴─────────────┐                │ (cache check)
-     ▼                           ▼                ▼
-┌──────────────┐     ┌──────────────────────┐ ┌─────────┐
-│ Postgres DB  │     │   Kafka Event Bus    │ │  Redis  │
-└──────────────┘     └───────────┬──────────┘ └─────────┘
-                                 │
-                   (Async consumer train travels)
-                                 │
-                                 ▼
-                     ┌──────────────────────┐
-                     │  Inventory Worker    │
-                     └──────────────────────┘
+                           [ USER CLICKS "CHECKOUT" ]
+                                       │
+                                       │ (Train departs)
+                                       ▼
+                             ┌───────────────────┐
+                             │    API Gateway    │ (Central Station)
+                             └─────────┬─────────┘
+                                       │
+                        ┌──────────────┴──────────────┐
+                        │ (Parallel train)            │ (Parallel train)
+                        ▼                             ▼
+             ┌───────────────────┐         ┌─────────────────────┐
+             │   Order Service   │         │    Auth Service     │
+             └─────────┬─────────┘         └──────────┬──────────┘
+                       │                              │
+         ┌─────────────┴─────────────┐                │ (Quick stop)
+         ▼                           ▼                ▼
+    ┌──────────────┐     ┌──────────────────────┐ ┌─────────┐
+    │ Postgres DB  │     │   Kafka Event Bus    │ │  Redis  │
+    └──────────────┘     └───────────┬──────────┘ └─────────┘
+      (Slow query?                   │
+     station turns red)              ▼
+                         ┌──────────────────────┐
+                         │  Notification Worker │
+                         └──────────────────────┘
 ```
 
-When you hit **Play**, you watch requests enter at the gateway, branch into parallel child trains, pause at databases, and hop onto async queues. You don't just *analyze* a trace—you *feel* the flow of your entire system.
+When you hit **Play**, you watch the request leave the user's browser, travel down the tracks, split into child requests, wait for database queries, and return an answer. 
 
 ---
 
 ## ⚡ Quick Start in 30 Seconds
 
-You don't even need Docker or a database to take Request Cinema for a spin. It runs right in your browser!
+You don't need any complex setup or cloud accounts. It runs 100% locally on your machine.
 
-### Option A: Zero-Server In-Browser Demo (Fastest)
+### Option 1: Run the Interactive Web Player (No Backend Required)
 
 ```bash
-# 1. Clone the repository
+# 1. Clone this repository
 git clone https://github.com/almas-codes/request-cinema.git
 cd request-cinema
 
 # 2. Install dependencies
 pnpm install
 
-# 3. Launch the web player
+# 3. Start the visual player
 pnpm --filter @request-cinema/web dev
 ```
 
-Open **`http://localhost:5173`** in your browser. Click **Import Trace** to load your own OTLP JSON trace file, or click any of the built-in scenario buttons:
-- 🛒 **E-Commerce Checkout** (happy path with database and cache hits)
-- 🔍 **Fan-out Product Search** (high-concurrency parallel queries)
-- ⚡ **Retry Storm** (intermittent database errors triggering exponential backoff)
-- 📬 **Async Queue Pipeline** (decoupled publisher and worker spans)
+1. Open **`http://localhost:5173`** in your browser.
+2. Click any of the built-in scenario buttons at the top to try it out:
+   - 🛒 **E-Commerce Checkout**: Watch a standard shopping checkout complete across 5 microservices.
+   - 🔍 **Parallel Product Search**: Watch 1 request fan out into 10 parallel search queries.
+   - ⚡ **Retry Storm**: Watch a database query fail, retry with exponential backoff, and recover.
+   - 📬 **Async Queue Pipeline**: Watch an event hop onto a message queue and get picked up by background workers.
+3. You can also drag and drop your own **OpenTelemetry (OTLP) JSON trace file** directly into the browser to visualize your own app!
 
 ---
 
-### Option B: Full-Stack Mode with Live OTLP Ingestion
+### Option 2: Full-Stack Mode (Send Live Data from Your Own Apps)
 
-Send live telemetry directly from your existing apps or OpenTelemetry Collector:
+If you want to send live telemetry directly from your own backend applications:
 
 ```bash
-# Launch both backend receiver and frontend viewer
+# Starts both the backend receiver (port 3001) and web UI (port 5173)
 pnpm dev
 ```
 
-- **Web UI**: `http://localhost:5173`
-- **OTLP Ingestion Endpoint**: `http://localhost:3001/v1/traces` (supports HTTP JSON and gzip)
+- **Web Visualizer**: `http://localhost:5173`
+- **OTLP Ingestion Endpoint**: `http://localhost:3001/v1/traces`
 - **Documentation**: `http://localhost:4321`
 
-#### Send a trace with curl:
+#### Test sending a trace with curl:
 ```bash
 curl -X POST http://localhost:3001/v1/traces \
   -H "Content-Type: application/json" \
   -d @examples/trace-fixtures/node-express-otlp.json
 ```
-Watch the train depart immediately across your screen via live Server-Sent Events (SSE)!
+Watch the train immediately depart across the subway map on your screen via live Server-Sent Events (SSE)!
 
 ---
 
-### Option C: Complete Docker Compose Stack
+### Option 3: Run with Docker Compose
 
-Want a self-contained environment with pre-configured demo microservices?
+If you prefer Docker:
 
 ```bash
 docker compose up --build
 ```
-Open **`http://localhost:3000`** to see real microservices communicating and generating live traffic.
+Open **`http://localhost:3000`** to see everything running with demo microservices generating real background traffic.
 
 ---
 
-## 🎮 The Experience
+## 🎮 Key Features
 
-### 1. Interactive Cinema Scrubber
-- **Play / Pause**: Smooth 60fps hardware-accelerated WebGL animation powered by PixiJS.
-- **Scrub Back & Forward**: Jump to any millisecond of a trace. The state engine is 100% deterministic—scrubbing to $t = 420\text{ms}$ always displays the exact same frame.
-- **Speed Controls**: Run at $0.25\times$ to inspect microsecond race conditions, or blast through at $8\times$.
-- **Step Mode**: Advance span-by-span to follow the request step-by-step.
+### 1. ⏯️ Movie-Style Timeline Scrubber
+- **Play & Pause**: Smooth 60 frames-per-second animation powered by PixiJS WebGL.
+- **Scrubbing**: Drag the slider to any exact millisecond in the request lifecycle ($t = 150\text{ms}$).
+- **Speed Up or Slow Down**: Play in slow-motion ($0.25\times$) to inspect microsecond race conditions, or fast-forward at $8\times$.
 
-### 2. Relative Latency Heatmap
-A 200ms database query might be blazing fast for an analytics query, but disastrously slow for a Redis cache lookup. 
-Request Cinema calculates heat **relatively** based on the historical percentile distribution for that specific operation:
-- 🟢 **Cool Teal / Blue**: Running at or below $p50$ (healthy).
-- 🟡 **Warm Amber**: Approaching $p90$ (degraded).
-- 🔴 **Neon Crimson Glow**: Exceeding $p99$ (bottleneck).
-- 🎨 **Color-Blind Safe Mode**: Full high-contrast palette option built right in.
+### 2. 🌡️ Relative Latency Heatmap
+Not all slow requests are the same. A 200ms database query might be normal, but a 200ms cache lookup is terrible.
+- 🟢 **Cool Teal / Blue**: Running at normal speed (healthy).
+- 🟡 **Warm Amber**: Slower than usual (degraded).
+- 🔴 **Bright Neon Crimson**: Major bottleneck ($p99$ slowest requests).
 
-### 3. Derailment Physics for Errors
-When a service returns an error status code (`STATUS_CODE_ERROR`), the train doesn't just display a tiny red dot. It triggers a physical derailment effect with smoke and particle sparks at the station where the error originated, making root cause identification unmistakable.
+### 3. 💥 Train Derailment on Errors
+When a service crashes or returns an HTTP 500 error, the train doesn't just show a tiny red warning icon—it physically derails with sparks and smoke right at the offending service station, making root causes impossible to miss.
 
-### 4. Direct Jump to Code & Git Blame
-Clicking any span opens the **Inspector Panel**:
-- **Overview & Attributes**: Full span metadata with automatic redaction of secrets, passwords, cookies, and tokens.
-- **Source Code Tab**: Resolves the span to the exact local or remote repository file with highlighted line numbers.
-- **Git History & Blame**: See the commit SHA, author, and commit message for the exact lines executing that span.
-- **Heuristics & Normalization Repairs**: View any clock-skew adjustments, synthetic orphan repairs, or cycle-breaking applied during ingestion.
+### 4. 🧑‍💻 Click to See Code & Git Blame
+Clicking on any station or train opens the **Inspector Panel**:
+- **Attributes**: View all request metadata (headers, SQL queries, user IDs).
+- **Privacy by Default**: Passwords, API tokens, session cookies, and credit card numbers are automatically scrubbed and redacted.
+- **Source Code**: Shows you the exact file name and highlighted line numbers in your codebase that executed the request.
+- **Git History**: Shows the commit hash, author, and commit message for that specific line of code.
 
-### 5. Accessible Table View (<kbd>T</kbd>)
-Accessibility isn't an afterthought. Press <kbd>T</kbd> at any time to toggle between the graphical Metro Canvas and a fully accessible, keyboard-navigable, screen-reader friendly **Table View** that complies with WCAG 2.2 AA standards.
+### 5. ♿ Accessible Table View (<kbd>T</kbd>)
+Press the <kbd>T</kbd> key at any time to switch between the animated subway map and a clean, high-contrast, screen-reader friendly table view that meets WCAG 2.2 AA accessibility standards.
 
 ---
 
 ## ⌨️ Keyboard Shortcuts
 
-Speed matters during an incident. Request Cinema is built for keyboard-first navigation:
-
-| Shortcut | Action |
+| Key | What it does |
 | :--- | :--- |
 | <kbd>Space</kbd> | Play / Pause playback |
 | <kbd>→</kbd> / <kbd>←</kbd> | Step forward / backward by 50ms |
-| <kbd>+</kbd> / <kbd>-</kbd> | Increase / decrease playback speed |
-| <kbd>T</kbd> | Toggle between Metro Map and Accessible Table View |
-| <kbd>C</kbd> or <kbd>?</kbd> | Open Keyboard Shortcuts cheat-sheet |
-| <kbd>Esc</kbd> | Close inspector or modals |
+| <kbd>+</kbd> / <kbd>-</kbd> | Speed up / slow down playback |
+| <kbd>T</kbd> | Switch between Subway Map and Accessible Table View |
+| <kbd>C</kbd> or <kbd>?</kbd> | Show Keyboard Shortcuts popup |
+| <kbd>Esc</kbd> | Close inspector panel or modal |
 
 ---
 
-## 📊 Honest Comparison
+## 📊 Comparison with Other Tools
 
-We love Jaeger, Zipkin, and Tempo. Here is how Request Cinema compares and where each shines:
-
-| Feature | Request Cinema | Jaeger / Zipkin | Grafana Tempo / APM |
+| Feature | Request Cinema | Jaeger / Zipkin | Grafana Tempo / Datadog |
 | :--- | :---: | :---: | :---: |
-| **Mental Model** | 🚇 Topological Metro Map | 📊 Waterfall Gantt Chart | 📈 Flamegraph / Tree |
-| **Animation & Flow** | 🚄 Real-time & Scrubbable Trains | ❌ Static snapshot | ❌ Static snapshot |
-| **Bottleneck Visibility** | 🔥 Relative Percentile Heatmap | ⚠️ Raw duration text | ⏱️ Color duration bars |
-| **Root Cause Detection**| 💥 Visual Train Derailment | ⚠️ Red border on span | ⚠️ Red error badge |
-| **Source Code & Git** | 💻 Integrated Code & Git Blame | ❌ Not available | ⚠️ 3rd-party APM link |
-| **Zero-Server Browser Mode**| 🌐 Yes (Drop a file and inspect) | ❌ Requires daemon | ❌ Requires object storage |
-| **Clock Skew Repair** | 🛠️ Automatic Topological Healing | ⚠️ Unadjusted | ⚠️ Manual offset |
-| **Best Used For** | **Incident triage, architecture onboarding, executive demos, deep root-cause debugging** | High-volume raw trace search & historical auditing | Enterprise multi-petabyte log/metric/trace correlation |
+| **How it looks** | 🚇 Animated Subway Metro Map | 📊 Horizontal Gantt Bars | 📈 Flamegraph / Tree |
+| **Animation** | 🚄 Interactive Video Player | ❌ Static image | ❌ Static image |
+| **Finding Bottlenecks** | 🔥 Stations glow red automatically | ⚠️ Have to read millisecond numbers | ⏱️ Bar lengths |
+| **Error Visibility** | 💥 Physical train crash animation | ⚠️ Small red dot on bar | ⚠️ Small error badge |
+| **View Source Code** | 💻 Integrated file & Git blame | ❌ Not available | ⚠️ Requires 3rd-party APM link |
+| **Zero-Server Browser Mode** | 🌐 Yes (Drop any JSON file and play) | ❌ Requires server daemon | ❌ Requires cloud storage |
+| **Industry Standard** | ✅ Standard OpenTelemetry (OTLP) | ✅ OTLP | ✅ OTLP |
+| **Best Used For** | **Incident debugging, onboarding new devs, visual demos, explaining architecture** | Raw log search and historical audits | Multi-petabyte enterprise telemetry |
 
 ---
 
-## 🏗️ Under the Hood
+## 🏗️ Architecture & Monorepo
 
-Request Cinema is built as a modular monorepo using **Turborepo** and **pnpm**:
+Request Cinema is built with **TypeScript**, **Turborepo**, and **pnpm workspaces**:
 
 ```mermaid
 graph TD
@@ -211,59 +212,63 @@ graph TD
     D --> E["@request-cinema/cinema-react"]:::ui
     E --> F["apps/web (React 19 + Vite SPA)"]:::ui
 
-    A --> G["@request-cinema/store (SQLite WAL & Memory)"]:::server
+    A --> G["@request-cinema/store (SQLite & In-Memory)"]:::server
     A --> H["@request-cinema/source-resolver (AST & Git)"]:::server
 
-    B --> I["apps/server (Hono REST & SSE)"]:::server
+    B --> I["apps/server (Hono REST & SSE Ingestion)"]:::server
     G --> I
     H --> I
     A --> I
 ```
 
-### Architectural Guarantees:
-- **Zero DOM in Core**: `packages/cinema-engine` contains zero references to the DOM, React, Node, `Date.now()`, or `Math.random()`. It takes an injected Clock and seeded RNG, making it 100% testable and portable.
-- **Pluggable Renderers**: The rendering engine sits behind a clean `Renderer` interface. PixiJS (WebGL) is the primary implementation, with Canvas fallback.
-- **Strict Architecture Boundaries**: Monitored via `dependency-cruiser`. No circular dependencies and no deep imports across packages.
-- **Type Safety**: TypeScript 5.7 in strict mode with composite project references. Zero `any` and zero non-null `!` assertions across the entire codebase.
-- **Lean Bundle Size**: The web application's gzipped JavaScript bundle is just **149.93 KB** (well under the 250 KB budget!).
+### Monorepo Packages:
+- **`packages/trace-model`**: Clean Zod schemas and TypeScript types for traces, spans, and attributes.
+- **`packages/otlp`**: Universal decoder and normalizer for standard OpenTelemetry OTLP JSON payloads. Works in both Node and browsers.
+- **`packages/cinema-engine`**: Pure deterministic simulation engine. Calculates positions, layout, clock skew corrections, and timeline state.
+- **`packages/cinema-renderer-pixi`**: High-performance 60fps WebGL canvas renderer using PixiJS.
+- **`packages/cinema-react`**: React components and hooks (`useClock`, `useSceneState`) for embedding the player.
+- **`packages/source-resolver`**: Maps spans back to local Git repositories, files, and lines using AST parsing.
+- **`packages/store`**: Storage layer supporting in-memory and SQLite (WAL mode).
+- **`apps/web`**: The main frontend visualizer application (React 19, Vite, Tailwind CSS, Zustand).
+- **`apps/server`**: Lightweight ingestion server built with Hono and Server-Sent Events (SSE).
+- **`apps/docs`**: Documentation site built with Astro Starlight.
 
 ---
 
-## 🔒 Security & Privacy First
+## 🔒 Security & Privacy
 
-Telemetry data often contains sensitive operational info. We designed Request Cinema to be safe for production environments:
-
-- **Redaction by Default**: All incoming span attributes pass through regex sanitizers that redact emails, passwords, bearer tokens, API keys, session cookies, and credit cards before persistence.
-- **Sandbox Source Resolution**: Filesystem lookups in `source-resolver` reject directory traversal escapes (e.g. `../../etc/passwd`) and strictly restrict reading to configured source roots.
-- **Zero Arbitrary Execution**: Git queries and AST analyses use argument arrays without shell interpolation.
-- **Safe SQLite**: Uses Node's native SQLite with parameterized statements and WAL mode.
+- **Automatic Secret Redaction**: All trace attributes automatically filter and mask passwords, JWT tokens, API keys, emails, cookies, and credit cards before saving or rendering.
+- **Safe Source Resolution**: File lookups strictly enforce project root boundaries and reject directory traversal attacks (e.g. `../../etc/passwd`).
+- **Open Standards**: Built entirely on standard OpenTelemetry (OTLP). No proprietary agents, no hidden SDKs, and no tracking.
 
 ---
 
-## 🧪 Comprehensive Testing Suite
+## 🧪 Testing & Code Quality
 
-Quality is guaranteed with every commit:
+You can run the entire test and quality suite with one command:
 
 ```bash
-# Run all quality checks in one command:
 pnpm verify
 ```
 
-- **Biome**: 128 source files checked in under 100ms.
-- **Dependency Cruiser**: 182 modules & 302 dependencies analyzed for zero boundary violations.
-- **TypeScript**: `tsc --build` with zero type errors.
-- **Vitest Unit & Contract Tests**: 42/42 tests passing across all packages.
-- **Fast-Check Property Fuzzing**: 1,000-run property tests asserting that arbitrary, randomly-generated malformed traces normalize safely without crashing.
+This automatically runs:
+- **Biome Check**: Lints and formats 129 source files.
+- **Dependency Boundary Cruiser**: Asserts zero circular dependencies across packages.
+- **TypeScript**: Full monorepo typecheck via `tsc --build`.
+- **Vitest Unit Tests**: All 42 tests passing across 9 test suites.
+- **Fast-Check Property Fuzzing**: Validates that randomized malformed traces never crash the engine.
+- **Build**: Compiles all packages and bundles the web application.
 
 ---
 
 ## 🤝 Contributing
 
-We love contributions! Whether you're fixing a typo in documentation, improving a transit line layout algorithm, or adding a new sample scenario:
+Contributions are very welcome! Whether it's adding a new sample scenario, improving transit map layout algorithms, or enhancing docs:
 
-1. Check out [CONTRIBUTING.md](CONTRIBUTING.md) for local setup instructions.
-2. Ensure `pnpm verify` passes locally.
-3. Submit a PR following [Conventional Commits](https://www.conventionalcommits.org/).
+1. Fork the repo and clone it locally.
+2. Read [CONTRIBUTING.md](CONTRIBUTING.md).
+3. Verify your changes pass `pnpm verify`.
+4. Submit a Pull Request with a clear description!
 
 ---
 
@@ -271,8 +276,6 @@ We love contributions! Whether you're fixing a typo in documentation, improving 
 
 Request Cinema is open-source software licensed under the **[MIT License](LICENSE)**.
 
----
-
 <div align="center">
-Built with ❤️ for engineers who believe observability should be as intuitive and enjoyable as watching a great film.
+Built with ❤️ for developers who want to understand their backend systems with clarity and joy.
 </div>

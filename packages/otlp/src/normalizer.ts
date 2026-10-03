@@ -29,9 +29,20 @@ export function normalizeId(raw: string): string {
   // Base64 decode attempt only if explicitly padded with = or contains + /
   if (clean.includes('=') || clean.includes('+') || clean.includes('/')) {
     try {
-      const binary = Buffer.from(clean, 'base64');
-      if (binary.length > 0) {
-        return binary.toString('hex').toLowerCase();
+      if (typeof Buffer !== 'undefined' && typeof Buffer.from === 'function') {
+        const binary = Buffer.from(clean, 'base64');
+        if (binary.length > 0) {
+          return binary.toString('hex').toLowerCase();
+        }
+      } else if (typeof atob === 'function') {
+        const raw = atob(clean);
+        if (raw.length > 0) {
+          let hex = '';
+          for (let i = 0; i < raw.length; i++) {
+            hex += raw.charCodeAt(i).toString(16).padStart(2, '0');
+          }
+          return hex.toLowerCase();
+        }
       }
     } catch {
       // fallback

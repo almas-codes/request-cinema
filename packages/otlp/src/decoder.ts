@@ -1,6 +1,13 @@
 import { z } from 'zod';
 import type { DecoderLimits, RawSpan } from './types.js';
 
+function getByteLength(text: string): number {
+  if (typeof Buffer !== 'undefined' && typeof Buffer.byteLength === 'function') {
+    return Buffer.byteLength(text, 'utf8');
+  }
+  return new TextEncoder().encode(text).length;
+}
+
 export const rawOtlpSchema = z.object({
   resourceSpans: z
     .array(
@@ -64,7 +71,7 @@ export function decodeOtlpJson(
   limits: DecoderLimits = {},
 ): { rawSpans: RawSpan[]; traceIds: string[] } {
   const maxBytes = limits.maxPayloadBytes ?? 10 * 1024 * 1024; // 10MB
-  if (Buffer.byteLength(payloadText, 'utf8') > maxBytes) {
+  if (getByteLength(payloadText) > maxBytes) {
     throw new Error(`Payload exceeds maximum allowed size of ${maxBytes} bytes`);
   }
 

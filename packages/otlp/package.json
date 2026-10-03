@@ -24,6 +24,7 @@
   "devDependencies": {
     "@request-cinema/config": "workspace:*",
     "@request-cinema/test-kit": "workspace:*",
+    "@types/node": "^22.13.4",
     "fast-check": "^3.23.2",
     "typescript": "^5.7.3",
     "vitest": "^3.0.5"

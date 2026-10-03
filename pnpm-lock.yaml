@@ -40,7 +40,7 @@ importers:
         version: 3.2.7(@types/debug@4.1.13)(@types/node@24.19.1)(jiti@2.6.1)(tsx@4.23.15)(yaml@2.9.1)
 
   apps/docs:
-    dependencies:
+    devDependencies:
       '@astrojs/starlight':
         specifier: ^0.32.0
         version: 0.32.6(astro@5.18.2(@types/node@24.19.1)(jiti@2.6.1)(rollup@4.64.0)(tsx@4.23.15)(typescript@5.9.3)(yaml@2.9.1))
@@ -283,6 +283,9 @@ importers:
       '@request-cinema/test-kit':
         specifier: workspace:*
         version: link:../test-kit
+      '@types/node':
+        specifier: ^22.13.4
+        version: 22.20.5
       fast-check:
         specifier: ^3.23.2
         version: 3.23.2
@@ -291,7 +294,7 @@ importers:
         version: 5.9.3
       vitest:
         specifier: ^3.0.5
-        version: 3.2.7(@types/debug@4.1.13)(@types/node@24.19.1)(jiti@2.6.1)(tsx@4.23.15)(yaml@2.9.1)
+        version: 3.2.7(@types/debug@4.1.13)(@types/node@22.20.5)(jiti@2.6.1)(tsx@4.23.15)(yaml@2.9.1)
 
   packages/sdk-node:
     dependencies:
